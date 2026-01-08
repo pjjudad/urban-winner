@@ -1,0 +1,41 @@
+# Subscriber
+car_state_topic_name: /estimation/slam/state
+
+transform_matrix_topic_name: /transform_matrix
+
+# Publisher
+path_generate_topic_name: /planning/ref_path
+
+ref_path_topic_name: /visual/ref_path
+
+# Trajectory params:
+desire_vel: 3.0    #期望速度
+
+car_length: 1.88
+# car_length: 4.82 #新的仿真环境
+ 
+look_ahead: 40 #20   #这个是根据 lidar cluster 匹配轨道的预瞄点距离？
+
+interval: 0.05   # interval 应该是生成离散路径时路径点的间隔
+
+forward_distance: 15.0    #这个和look_ahead有什么不同
+
+# circle_radius: 10.5  #圆的半径   //不同地图的圆的半径不同，这个也要跟着改变
+circle_radius: 9.125
+
+max_lat_acc: 3.0   #法向加速度 表示速度方向变化的快慢   
+
+
+
+# other params:
+N: 60
+
+dt: 0.04    #每次计算的时间间隔
+
+initial_velocity: 2
+
+mission: skidpad          # [trackdrive, skidpad, acceleration]
+
+simulation: true
+
+node_rate: 100   # [Herz]

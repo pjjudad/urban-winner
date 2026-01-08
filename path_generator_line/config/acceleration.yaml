@@ -1,0 +1,38 @@
+# Subscriber
+car_state_topic_name: /estimation/slam/state
+
+end_point_topic_name: /planning/end_point
+
+# Publisher
+path_generate_topic_name: /planning/ref_path
+
+ref_path_topic_name: /visual/ref_path
+
+# Track params:
+#这个不一定是实际控制速度
+desire_vel: 60 #原本是10  为什么这个值调大了前视距离也大，且反而不会在最后乱打方向？
+
+# car_length: 1.88 #旧的仿真
+car_length: 1.6 #新的仿真环境
+
+
+look_ahead: 180 #15  钟摆调这个 不要超过N
+
+interval: 0.05   # interval  间隔、间距  应该是生成离散路径时路径点的间隔
+
+max_lat_acc: 3  #法向加速度 表示速度方向变化的快慢    #原本是3.0    
+
+# other params:  不知道下面的是否需要改
+N: 100
+
+
+dt: 0.04
+
+initial_velocity: 10
+
+mission: acceleration          # [trackdrive, skidpad, acceleration]
+
+# simulation: true  这个设为true的话，car_length会变为0
+simulation: false  #好像skidpad才用到这个参数
+
+node_rate: 100   # [Herz]

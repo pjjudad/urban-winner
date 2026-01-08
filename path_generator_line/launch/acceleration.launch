@@ -1,0 +1,5 @@
+<launch>
+    <node name="path_generator_node" pkg="path_generator_line" type="path_generator_line" output="screen">
+        <rosparam command="load" file="$(find path_generator_line)/config/acceleration.yaml" /> <!--Load parameters from config files-->
+    </node>
+</launch>
