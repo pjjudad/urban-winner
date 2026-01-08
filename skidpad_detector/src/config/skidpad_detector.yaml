@@ -1,0 +1,18 @@
+#这个会影响实际的控制   /perception/lidar_cluster
+
+cluster_filtered_topic_name: /velodyne_points
+
+transform_matrix_topic_name: /transform_matrix
+
+path: # Remember to replace {YOUR_WORKSPACE} with your real workspace, like "home/lyw/opensource_ws/ros/planning/skidpad_detector/config/skidpad.pcd"
+     #下面三个文件是实时不断更新的吧
+  skidpad_map: /home/emliy/A10-master/skidpad_old/szrace2_1/src/ros/planning/skidpad_detector/config/skidpad.pcd
+  path_x: /home/emliy/A10-master/skidpad_old/szrace2_1/src/ros/planning/skidpad_detector/config/path_x.txt
+  path_y: /home/emliy/A10-master/skidpad_old/szrace2_1/src/ros/planning/skidpad_detector/config/path_y.txt
+
+length:    #这些是什么长度？
+  start: 15.0      #
+  lidar2imu: 0     #这个啥意思？雷达到IMU的距离1.87m?
+  threshold: 0.7   # 0.7m内？
+
+node_rate: 50   # [Herz]
