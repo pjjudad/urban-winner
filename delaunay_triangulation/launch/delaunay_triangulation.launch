@@ -1,0 +1,9 @@
+<launch>                                                                    
+    <node pkg="delaunay_triangulation" type="delaunay_triangulation" name="delaunay_triangulation" output="screen">
+        <param name="max_triangle_size" value="9.0" />
+    </node>
+</launch>
+
+
+
+
