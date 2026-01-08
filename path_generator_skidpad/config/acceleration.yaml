@@ -1,0 +1,44 @@
+# Subscriber
+car_state_topic_name: /estimation/slam/state
+
+end_point_topic_name: /planning/end_point
+
+# Publisher
+path_generate_topic_name: /planning/ref_path
+
+ref_path_topic_name: /visual/ref_path
+
+# Track params:
+#这个不一定是实际控制速度
+desire_vel: 0.1 #原本是10  为什么这个值调大了前视距离也大，且反而不会在最后乱打方向？
+
+# car_length: 1.88 #旧的仿真
+car_length: 1.6 #新的仿真环境
+
+#如果pure_pusuit那边不用trajectoy_里面的velocity的话，这里的
+#max_lat_acc和desire_vel设为0好像没啥影响，只是看不见红色的参考路径而已
+#max_lat_acc和desire_vel设为一个很小的不是0的数就又可以看见红色参考路径了
+
+look_ahead: 60   #实际并没有用到
+
+interval: 0.05    # interval  间隔、间距  应该是生成离散路径时路径点的间隔
+
+# max_lat_acc: 2  #横向加速度    #原本是3.0    如果control里面的期望速度减小了，则这里也要减小横向加速度，否则轮子会乱打方向  
+
+max_lat_acc: 0.1
+
+# other params:  不知道下面的是否需要改
+N: 80
+
+dt: 0.04
+
+# initial_velocity: 1   
+
+initial_velocity: 2  #不是很重要
+
+mission: acceleration          # [trackdrive, skidpad, acceleration]
+
+# simulation: true  这个设为true的话，car_length会变为0
+simulation: false  #好像skidpad才用到这个参数
+
+node_rate: 100   # [Herz]

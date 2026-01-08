@@ -1,0 +1,41 @@
+# Subscriber
+car_state_topic_name: /estimation/slam/state
+
+#不要用/map啊
+map_topic_name: /map    #map应该是全局地图   不订阅这个行不行？  
+# map_topic_name: /local_map  # 要订阅boundary_detector处理完local_map之后发布出来的话题
+
+
+#必须要将其转换为全局坐标系下的表示，否则规划不好
+# map_topic_name: /planning/boundary_detections   #要订阅boundary_detector处理完local_map之后发布出来的话题
+
+
+# Publisher  将/planning/ref_path话题发送给controller那边调用
+path_generate_topic_name: /planning/ref_path  #这个应该也是局部地图上的，即车辆坐标系  那么生成的
+
+ref_path_topic_name: /visual/ref_path    #这个应该是局部地图上的   怎么生成的？
+#这个可以在rviz那边看到吗？  /visual/ref_path  可以看见
+
+# Trajectory params:
+#这个不如contrl那边的desire_vel影响大
+desire_vel: 5
+
+car_length: 1.88
+# car_length: 4.82 #新的仿真环境
+
+look_ahead: 15
+
+#这个yaml文件的Trajectory params还有很多个可以设置但没设置的的参数
+
+# other params:
+N: 40
+
+dt: 0.04
+
+initial_velocity: 1
+
+mission: trackdrive          # [trackdrive, skidpad, acceleration]
+
+simulation: true
+
+node_rate: 100   # [Herz]

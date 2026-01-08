@@ -1,0 +1,268 @@
+/*
+    Formula Student Driverless Project (FSD-Project).
+    Copyright (c) 2021:
+     - chentairan <tairanchen@bitfsd.cn>
+
+    FSD-Project is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    FSD-Project is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with FSD-Project.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+#include "Track/skidpad_track.h"
+#include "ros/ros.h"
+#include "global_vars.h"
+
+Param param_;
+
+namespace ns_path_generator {
+
+bool Skidpad_Track::genTraj() {
+
+  // The front side to the gravity point    重力点的前侧  ?? 
+  const double car_length = param_.simulation ? 0 : param_.car_length;  
+
+  double interval = param_.interval;     //可能是创建环形虚拟路径时路径点的间隔
+  double forward_distance = param_.forward_distance;
+  double circle_radius = param_.circle_radius ;
+  double right_circle_x = forward_distance ;    //这是在表示左右圆的圆心位置吧
+  double right_circle_y = -circle_radius;
+  double left_circle_x = right_circle_x;
+  //double left_circle_y = param_.test;
+  double left_circle_y = circle_radius;
+
+  TrajectoryPoint tmp_pt;
+  trajectory_.clear();
+/*  
+   //line need discrete  线路需要离散  //discrete 离散
+  for (double i = 0; i < (forward_distance); i += interval) {
+    tmp_pt.pts.x = i;
+    tmp_pt.pts.y = 0;
+    tmp_pt.yaw = 0;
+    trajectory_.push_back(tmp_pt);
+  }
+
+  //right_circle
+  for (double i = 0; i < 4 * M_PI-M_PI/6; i += interval/ circle_radius ) {// / circle_radius
+    tmp_pt.pts.x = circle_radius * std::cos(90 * M_PI / 180 - i) + right_circle_x;
+    tmp_pt.pts.y = circle_radius * std::sin(90 * M_PI / 180 - i) + right_circle_y;
+    tmp_pt.yaw = -i;
+    trajectory_.push_back(tmp_pt);
+  }
+
+  //xieline
+  // 获取右圈结束点
+TrajectoryPoint end_right = tmp_pt;
+
+// 计算左圈开始点
+TrajectoryPoint start_left;
+start_left.pts.x = circle_radius * std::cos(-90 * M_PI / 180 + M_PI/6) + left_circle_x;
+start_left.pts.y = circle_radius * std::sin(-90 * M_PI / 180 + M_PI/6) + left_circle_y;
+start_left.yaw = M_PI/6;
+
+// 计算两点之间的距离
+double dx = start_left.pts.x - end_right.pts.x;
+double dy = start_left.pts.y - end_right.pts.y;
+double distance = std::hypot(dx, dy);
+
+// 计算连接两点需要的点数
+int num_points = static_cast<int>(distance / interval);
+
+// 生成连接轨迹
+for (int i = 1; i <= num_points; i++) {
+  double ratio = static_cast<double>(i) / num_points;
+  tmp_pt.pts.x = end_right.pts.x + ratio * dx;
+  tmp_pt.pts.y = end_right.pts.y + ratio * dy;
+  
+ // 线性插值航向角
+  double yaw_diff = start_left.yaw - end_right.yaw;
+  // 处理航向角跨越±π的情况
+  if (yaw_diff > M_PI) yaw_diff -= 2 * M_PI;
+  if (yaw_diff < -M_PI) yaw_diff += 2 * M_PI;
+  
+  tmp_pt.yaw = end_right.yaw + ratio * yaw_diff;
+  trajectory_.push_back(tmp_pt);
+}
+
+  //left_circle
+  for (double i = M_PI/6; i < 4 * M_PI; i += interval/ circle_radius ) {
+    tmp_pt.pts.x = circle_radius * std::cos(-90 * M_PI / 180 + i) + left_circle_x;
+    tmp_pt.pts.y = circle_radius * std::sin(-90 * M_PI / 180 + i) + left_circle_y; //param_.test
+    tmp_pt.yaw = i;
+    trajectory_.push_back(tmp_pt);
+  }
+
+
+  //line again  为什么要再次离散？
+  for (float i = forward_distance; i < (forward_distance) + 30; i += interval) { //+18
+    tmp_pt.pts.x = i;
+    tmp_pt.pts.y = 0;
+    tmp_pt.yaw = 0;
+    trajectory_.push_back(tmp_pt);
+  }
+ */
+  
+
+//line need discrete
+for (double i = -2.0; i < (forward_distance); i += interval) {
+  tmp_pt.pts.x = i;
+  tmp_pt.pts.y = 0;
+  tmp_pt.yaw = 0;
+  trajectory_.push_back(tmp_pt);
+}
+
+//right_circle - 修改为完整的半圆
+for (double i = 0; i <= M_PI; i += interval/ circle_radius) {
+  tmp_pt.pts.x = circle_radius * std::cos(M_PI/2 - i) + right_circle_x;
+  tmp_pt.pts.y = circle_radius * std::sin(M_PI/2 - i) + right_circle_y;
+  tmp_pt.yaw = -i;
+  trajectory_.push_back(tmp_pt);
+}
+
+// 获取圆的结束点作为直线的起点
+TrajectoryPoint circle_end = tmp_pt;
+
+//line again - 从圆的结束点开始，保持连续
+double start_x = circle_end.pts.x;
+double start_y = circle_end.pts.y;
+double end_x = -(car_length + forward_distance) - 38;
+double end_y = -12; // 或者使用 circle_end.pts.y 保持y坐标连续
+
+// 计算直线上的点
+double line_length = std::hypot(end_x - start_x, end_y - start_y);
+int num_points = static_cast<int>(line_length / interval);
+
+for (int j = 0; j <= num_points; j++) {
+  double ratio = static_cast<double>(j) / num_points;
+  tmp_pt.pts.x = start_x + ratio * (end_x - start_x);
+  tmp_pt.pts.y = start_y + ratio * (end_y - start_y);
+  tmp_pt.yaw = -M_PI; // 或者根据实际方向调整
+  
+  // 如果要保持航向角连续，可以这样插值：
+  // double target_yaw = (end_y == start_y) ? -M_PI : std::atan2(end_y - start_y, end_x - start_x);
+  // tmp_pt.yaw = circle_end.yaw + ratio * (target_yaw - circle_end.yaw);
+  
+  trajectory_.push_back(tmp_pt);
+}
+
+  // Transform the trajectory  
+  
+  
+    /*for (size_t i = 0; i < trajectory_.size(); i++) {
+    double temp_x, temp_y;
+    temp_x = trajectory_[i].pts.x;
+    temp_y = trajectory_[i].pts.y;
+    Eigen::Vector4f temp(temp_x, temp_y, 0, 1);
+    Eigen::Vector4f result = transMat_ * temp;        //用到了ns_path_generator::Track::transMat_
+    trajectory_[i].pts.y = result[1] / result[3];
+    trajectory_[i].pts.x = result[0] / result[3];
+
+        point_cloud.header.stamp = ros::Time::now();
+        point_cloud.header.frame_id = "world";  // 设置你需要的坐标系
+
+        // 添加点
+        geometry_msgs::Point32 point;
+        point.x = trajectory_[i].pts.x;
+        point.y = trajectory_[i].pts.y;
+        point.z = 0.0;  // 假设 z 坐标为 0
+        point_cloud.points.push_back(point);
+  }*/
+	  // 直接发布原始轨迹，不进行变换
+	  for (size_t i = 0; i < trajectory_.size(); i++) {
+	    // 直接使用原始坐标，不进行任何矩阵变换
+	    double x = trajectory_[i].pts.x;
+	    double y = trajectory_[i].pts.y;
+	    
+	    // 保持轨迹点坐标不变
+	    trajectory_[i].pts.x = x;
+	    trajectory_[i].pts.y = y;
+
+	    // 设置点云数据
+	    point_cloud.header.stamp = ros::Time::now();
+	    point_cloud.header.frame_id = "world";
+
+	    geometry_msgs::Point32 point;
+	    point.x = x;  // 直接使用原始x坐标
+	    point.y = y;  // 直接使用原始y坐标
+	    point.z = 0.0;
+	    point_cloud.points.push_back(point);
+	  }
+
+  return true;
+}
+
+bool Skidpad_Track::CalculateTraj(Trajectory &refline) {
+
+  if (trajectory_.empty()) {
+    ROS_WARN("Trajectory is empty !");
+    return false;
+  }
+  refline.clear();
+  TrajectoryPoint tmp_pt;
+
+  double px = state_.x;
+  double py = state_.y;
+  double psi = state_.yaw;
+
+  int count = 0;
+  int index_min = -1;
+  double min = 999;
+  for (int i = now_state; i < trajectory_.size() && i < now_state + 400; i++) {
+    double delta_x = trajectory_[i].pts.x - px;
+    double delta_y = trajectory_[i].pts.y - py;
+    double dist = std::hypot(delta_x, delta_y);
+    if (dist < min) {
+      min = dist;
+      index_min = i;
+    }
+  }
+  if (index_min < 0)
+    return false;
+
+  now_state = index_min;
+
+  const double desired_velocity = param_.desire_vel;
+  const int N = param_.N;
+  const double dt = param_.dt;
+  TrajectoryPoint tmp;
+  double v = std::fmax(state_.v, param_.initial_velocity);
+
+  double s_tmp = 0;
+  for (int i = 0; i < N; i++) {
+    if (i != 0)
+      s_tmp += v * dt;
+
+    int index = int(s_tmp / param_.interval);
+    int next = (index + index_min) > trajectory_.size() ? trajectory_.size() - 1 : index + index_min;
+
+    double delta_x = trajectory_[next].pts.x - px;
+    double delta_y = trajectory_[next].pts.y - py;
+    double delta_yaw = trajectory_[next].yaw - psi;
+
+    while ((delta_yaw) >= M_PI)
+      delta_yaw -= M_PI * 2.0;
+    while ((delta_yaw) <= -1.0 * M_PI)
+      delta_yaw += M_PI * 2.0;
+
+    double temp_x, temp_y;
+    temp_x = delta_x * cos(psi) + delta_y * sin(psi);
+    temp_y = delta_y * cos(psi) - delta_x * sin(psi);
+
+    tmp.curvature = fabs(trajectory_[next].curvature);
+    tmp.pts = cv::Point2f(temp_x, temp_y);
+    tmp.yaw = delta_yaw;
+    tmp.velocity = std::min(sqrt(param_.max_lat_acc / tmp.curvature), desired_velocity);
+    refline.push_back(tmp);
+  }
+   return true;
+}
+
+}//namespace ns_path_generator
