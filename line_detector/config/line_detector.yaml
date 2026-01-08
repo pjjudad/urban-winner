@@ -1,0 +1,13 @@
+#这个会影响实际的控制
+
+lidar_cluster_topic_name: /perception/cluster_cloud
+ #直接订阅原始聚类话题
+ #在拿到数据后直接减去偏移量,要用fssim的话还得把源代码改回去, 改动在LineDetector::setlidarCluster.改好后重新编译line_detector
+
+end_point_topic_name: /planning/end_point
+
+allow_angle_error: 3 # degree  原本是1 生成直线的斜率误差允许值
+
+node_rate: 50   # [Herz]
+
+path_length: 80 # [m]   原本是82  #这个设不了太低，跟end_point的设置有关
